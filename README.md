@@ -13,6 +13,9 @@ frontend-base checkout and see it live.
 > **Status** — both loops tested end-to-end on `mkurkar-eduba-01` and `mkurkar-lab-02`
 > (webpack compiles clean, hot reload works, ports reachable from the laptop, CORS/CSRF verified).
 > See [Verified environments](#verified-environments).
+>
+> **Starting from a fresh box?** Follow **[docs/FRESH-BOX.md](docs/FRESH-BOX.md)** — the complete
+> step-by-step runbook (provision → tooling → node → LMS whitelist → loop A → loop B → login).
 
 ---
 
