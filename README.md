@@ -108,7 +108,8 @@ generated config and the port need no source edits — and `git status` stays cl
 
 ## 5. How loop B works — `makefiles/mfe-site.mk`
 
-A *site* is a repository (a fork of `frontend-template-site`) with a `site.config.tsx`, a
+A *site* is a repository — the lab's is **`zeit-labs/lab-frontend-site`** (based on
+`frontend-template-site`) — with a `site.config.tsx`, a
 `packages/*` npm workspace, and the frontend-base checkout living in `packages/frontend-base`.
 `npm run dev:packages` watch-builds the workspace packages (in dependency order, via Turborepo)
 and starts the site's webpack dev server.
@@ -121,10 +122,10 @@ mounts **each top-level entry of the fork except `node_modules`** into
 
 | Target | What it does |
 |---|---|
-| `mfe.site.deps` | clones/updates the site repo (`LAB_MFE_SITE_REPO`, default upstream `frontend-template-site`) into `LAB_MFE_SITE_DIR` and runs `npm install` (skips when installed; `FORCE=1` reinstalls). |
+| `mfe.site.deps` | clones/updates the site repo (`LAB_MFE_SITE_REPO`, default **`zeit-labs/lab-frontend-site`**) into `LAB_MFE_SITE_DIR` and runs `npm install` (skips when installed; `FORCE=1` reinstalls). |
 | `mfe.site.link` | creates `packages/frontend-base` and bind-mounts every top-level entry of the fork into it (skipping `node_modules`), so the site gets a **live view of the source** and keeps its **own** `node_modules`; the fork's stays untouched and loop A keeps working. |
 | `mfe.site.unlink` | unmounts them (stop the site dev server first). |
-| `mfe.site.config` | generates `site.config.dev.box.tsx` with the box URLs, and patches two template quirks: the template's `dev` script hardcodes `PORT=8080` (changed to read the environment), and Turbo 2's strict env mode filters `PORT`/`SITE_CONFIG_PATH` unless they are listed in `turbo.json`'s `globalPassThroughEnv` (added). Both edits are idempotent. |
+| `mfe.site.config` | generates `site.config.dev.box.tsx` with the box URLs. For a stock template it also patches two quirks — the hardcoded `PORT=8080` in the `dev` script, and Turbo 2's strict env mode (`globalPassThroughEnv` for `PORT`/`SITE_CONFIG_PATH`). The lab's site repo already carries both, so those edits are idempotent no-ops there. |
 | `mfe.site.dev` | deps + link + config, then `npm run dev:packages` at `LAB_MFE_SITE_PORT` (3081). |
 
 Edits in the fork are watch-built into the site (a few seconds for the library build, then the
@@ -154,7 +155,7 @@ All are `?=` (override on the command line or in `local.mk`).
 | `LAB_MFE_DEV_HOST` | `$(SERVICE_HOST)` | the box hostname used in generated configs |
 | `LAB_MFE_LMS_URL` | `http://$(SERVICE_HOST):8000` | LMS base URL baked into the dev configs — override for boxes whose LMS is behind an HTTPS proxy |
 | `LAB_FRONTEND_BASE_DIR`, `LAB_MFE_SITE_DIR` | `$(WORKSPACE_DIRECTORY)/frontend-site` | loop B checkout |
-| `LAB_MFE_SITE_REPO`, `LAB_MFE_SITE_REF` | upstream template, `main` | set these to a lab-owned site repo once it exists |
+| `LAB_MFE_SITE_REPO`, `LAB_MFE_SITE_REF` | `zeit-labs/lab-frontend-site`, `main` | point at another site checkout to use it instead (e.g. the upstream template) |
 | `FORCE` | — | `FORCE=1` forces `npm install` to re-run |
 
 ---

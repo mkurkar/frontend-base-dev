@@ -7,7 +7,7 @@ the Open edX **frontend-base** fork that contains the shell **and** the header/f
 | | **A — dev shell** (start here) | **B — site + workspaces** |
 |---|---|---|
 | Command | `make mfe.dev` | `make mfe.site.dev` |
-| What runs | frontend-base's self-contained dev shell: shell + header + footer from source, plus a few showcase apps | a real **site** (`frontend-template-site` layout) with the actual apps (authn, learner/instructor dashboards, notifications, …) |
+| What runs | frontend-base's self-contained dev shell: shell + header + footer from source, plus a few showcase apps | a real **site** — the lab's `lab-frontend-site` — with the actual apps (authn, learner/instructor dashboards, notifications, …) |
 | Use it for | day-to-day header/footer work — fast, isolated | integration checks — "does it look right inside the real platform" |
 | Port | 3080 | 3081 |
 | Setup | node + `npm install` (automatic) | + site repo + npm workspace install (slower) |
@@ -61,9 +61,8 @@ make box.make PROJECT=lab TARGET="mfe.site.dev"   # foreground; Ctrl-C stops it
 
 What the Makefile does:
 
-1. clones the site repo (`LAB_MFE_SITE_REPO`, default the upstream
-   `frontend-template-site`; a lab-owned fork can be set once it exists) into
-   `~/workspace/frontend-site`;
+1. clones the site repo (`LAB_MFE_SITE_REPO`, default the lab's
+   **`zeit-labs/lab-frontend-site`**) into `~/workspace/frontend-site`;
 2. **bind-mounts** the fork's source (`~/workspace/lab-frontend-base`, every top-level entry
    except `node_modules`) as the site's `packages/frontend-base`, so the site keeps its **own**
    `node_modules` and the fork's stays untouched;

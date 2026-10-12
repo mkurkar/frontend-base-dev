@@ -2,9 +2,11 @@
 #
 # Approach A (makefiles/mfe.mk) runs frontend-base's self-contained dev shell: fast, but it
 # only exercises the shell + header + footer. Approach B composes a real SITE — the same way
-# Tutor/tutor-mfe builds one — from the frontend-template-site layout and the npm workspace
-# under packages/, so the header/footer run next to the actual apps (authn, learner dashboard,
-# instructor dashboard, notifications, ...).
+# Tutor/tutor-mfe builds one — from the site layout and the npm workspace under packages/, so
+# the header/footer run next to the actual apps (authn, learner dashboard, instructor
+# dashboard, notifications, ...). The default site is the lab's own repo
+# (zeit-labs/lab-frontend-site); point LAB_MFE_SITE_REPO at another site checkout to use that
+# instead (e.g. the upstream openedx/frontend-template-site).
 #
 #   make mfe.site.deps    # clone/update the site repo + npm install its workspace deps
 #   make mfe.site.link    # bind-mount lab-frontend-base as the site's packages/frontend-base
@@ -22,7 +24,7 @@
 # loops (make mfe.dev / make mfe.site.dev) can run at the same time.
 
 LAB_MFE_SITE_DIR      ?= $(WORKSPACE_DIRECTORY)/frontend-site
-LAB_MFE_SITE_REPO     ?= https://github.com/openedx/frontend-template-site.git
+LAB_MFE_SITE_REPO     ?= https://github.com/zeit-labs/lab-frontend-site.git
 LAB_MFE_SITE_REF      ?= main
 LAB_MFE_SITE_PORT     ?= 3081
 LAB_MFE_SITE_CONFIG   ?= site.config.dev.box.tsx

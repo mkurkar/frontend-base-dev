@@ -11,7 +11,8 @@ Replace `lab` / `NN` with your project + instance (`mkurkar-lab-02` = `PROJECT=l
 - ZeitLabs **Tailscale** account, connected.
 - The **devbox toolchain**: `cd <devbox repo> && devbox shell` (gives you `gh`, `jq`, `mutagen`, `caddy`). Needed in every terminal that runs `make box.*`.
 - `gh auth login` done.
-- The frontend-base fork and the site repo are public; no extra credentials needed on the box.
+- The frontend-base fork is public; the site repo (`zeit-labs/lab-frontend-site`) is private to
+  the org — the box clones it with the provision token, and a local clone needs org access.
 
 ---
 
@@ -101,7 +102,7 @@ Edit anything under `~/workspace/lab-frontend-base/shell/` and the browser updat
 ## 6. Loop B — the site (box)
 
 ```bash
-make mfe.site.deps   # clones frontend-template-site -> ~/workspace/frontend-site + npm install
+make mfe.site.deps   # clones zeit-labs/lab-frontend-site -> ~/workspace/frontend-site + npm install
                      #   (first run: pulls all the real apps — ~10 min)
 make mfe.site.link   # exposes the fork's source as packages/frontend-base (no deps shared)
 make mfe.site.config # box-aware site config + template quirks (PORT, turbo env passthrough)
@@ -110,8 +111,8 @@ make mfe.site.dev    # foreground; site dev server on :3081
 
 Open `http://<box>.openedx.devbox:3081/`. Both loops can run at the same time.
 
-> To point loop B at a lab-owned site repo instead of the upstream template:
-> `make mfe.site.dev LAB_MFE_SITE_REPO=https://github.com/<org>/<repo>.git`.
+> The default site is the lab's own `zeit-labs/lab-frontend-site`; `LAB_MFE_SITE_REPO=…`
+> points loop B at another site checkout (e.g. the upstream template).
 
 ---
 
