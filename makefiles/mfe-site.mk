@@ -65,17 +65,23 @@ mfe.site.link: #- Expose the frontend-base checkout as the site's packages/front
 	  if mountpoint -q "$$target"; then continue; fi; \
 	  sudo mount --bind "$$(pwd)/$$entry" "$$target" || echo ">> !! could not mount $$entry"; \
 	done; \
-	echo ">> $(LAB_FRONTEND_BASE_DIR) is live as packages/frontend-base (site owns its node_modules)"
+	echo ">> $(LAB_FRONTEND_BASE_DIR) is live as packages/frontend-base (site owns its node_modules)"; \
+	echo ">> NOTE: run 'make mfe.site.unlink' before deleting/moving $(LAB_MFE_SITE_DIR) —"; \
+	echo ">>   removing it while linked deletes the fork's files through the mounts."
 
 mfe.site.unlink: #- Undo the bind mounts created by mfe.site.link
-	@cd "$(LAB_MFE_SITE_DIR)/packages/frontend-base" 2>/dev/null && { \
-	  for entry in * .[!.]*; do \
-	    [ -e "$$entry" ] || continue; \
-	    if mountpoint -q "$$entry"; then \
-	      sudo umount "$$entry" || echo ">> !! busy: $$entry (stop the site dev server first)"; \
-	    fi; \
-	  done; \
-	} || true
+	@# The per-entry mounts show up under BOTH path spellings (the site view and the fork's own
+	@# path), so walk both. Always run this before deleting or moving the site checkout: an
+	@# `rm -rf` through an active mount deletes the fork's files.
+	@for dir in "$(LAB_MFE_SITE_DIR)/packages/frontend-base" "$(LAB_FRONTEND_BASE_DIR)"; do \
+	  [ -d "$$dir" ] || continue; \
+	  ( cd "$$dir" && for entry in * .[!.]*; do \
+	      [ -e "$$entry" ] || continue; \
+	      if mountpoint -q "$$entry"; then \
+	        sudo umount "$$entry" || echo ">> !! busy: $$dir/$$entry"; \
+	      fi; \
+	    done ); \
+	done
 	@echo ">> unlinked"
 
 mfe.site.config: #- Generate the box-aware site config (host $(LAB_MFE_DEV_HOST), port $(LAB_MFE_SITE_PORT))
