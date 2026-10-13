@@ -177,3 +177,6 @@ mount | grep -c frontend-base
 | `EADDRINUSE` | Something already serves that port: `ss -tlnp \| grep <port>`. |
 | Loop A fails with `Failed to compile … react-refresh / html-webpack-plugin` | The fork's `node_modules` is masked by a leftover whole-directory mount: `make mfe.site.unlink`, check `mount \| grep frontend-base`, restart loop A. |
 | Loop A: `tsc: No such file or directory` | `make mfe.deps FORCE=1`. |
+| The fork's files vanished after deleting/moving the site checkout | Loop B bind-mounts the fork's entries into `frontend-site/packages/frontend-base`; `rm -rf` through an active mount deletes the source. `make mfe.site.unlink` first; recover the fork with `git clone`. |
+| Mounted legacy MFE crash-loops: `sh: 1: fedx-scripts: not found` | The mount overlays the image's `/openedx/app`: `tutor dev run --no-deps <app> npm install`, then `tutor dev restart <app>`. |
+| Private repos can't be cloned from the box (`could not read Username`) | The box has no git credentials — use `box.sync` (it clones with the provision token), or transfer a `git bundle` from your laptop. |

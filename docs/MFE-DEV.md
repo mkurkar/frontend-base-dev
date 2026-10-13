@@ -91,6 +91,35 @@ make mfe.site.config LAB_MFE_LMS_URL=…            # regenerate the site config
 > mode filters `PORT`/`SITE_CONFIG_PATH` unless they are listed in `turbo.json`'s
 > `globalPassThroughEnv`. Both edits are idempotent.
 
+## C. Editing a **legacy** MFE (optional)
+
+Legacy MFEs (learning, discussions, authoring, …) are not part of the site yet — Tutor serves
+them from the MFE image at their own ports (`apps.<box>:2000/learning`, `:2002/discussions`, …).
+To edit one live:
+
+```bash
+cd ~/workspace
+git clone --branch release/verawood.1 https://github.com/openedx/frontend-app-learning.git frontend-app-learning
+tutor mounts add ~/workspace/frontend-app-learning
+tutor images build learning-dev            # first time only (~15 min)
+tutor dev start -d                         # learning dev service on :2000
+tutor dev run --no-deps learning npm install   # the mount hides the image's node_modules
+tutor dev restart learning                 # webpack dev server starts
+
+# then edit ~/workspace/frontend-app-learning/src/...  → hot reload, no restart
+```
+
+Notes:
+
+- The bind-mount **overlays** the image's `/openedx/app`, so the repo needs its own
+  `node_modules` — that is the `npm install` step. Without it the container crash-loops with
+  `sh: 1: fedx-scripts: not found`.
+- A legacy MFE's header is `@edx/frontend-component-header` (not the frontend-base shell); apps
+  render it through a plugin slot (e.g. learning's `src/plugin-slots/HeaderSlot/index.jsx`), so
+  it can be customized by editing that wrapper or by injecting a plugin via `env.config.jsx`.
+- Same recipe for any app — swap the repo/name. The per-app dev image build is the slow part.
+- When the app is ported to frontend-base, drop the mount and add it to the site instead.
+
 ## Where the code lives
 
 ```
@@ -118,3 +147,5 @@ operations — either directly in the fork or from a site's `site.config.tsx` vi
 | Runtime-config fetch errors in the log | harmless if the page renders; the dev server proxies `/api/frontend_site_config/v1/` to `local.openedx.io:8000`, which the Makefile points at the box's own LMS via `/etc/hosts` |
 | `EADDRINUSE` on start | another dev server is running: `ss -tlnp | grep ‹port›` and stop it, or use `mfe.dev.alt PORT=…` |
 | Turbo task doesn't see `PORT` | `mfe.site.config` must have run (it patches `turbo.json`) |
+| The fork's files disappeared after deleting/moving the site checkout | loop B bind-mounts the fork's entries into `frontend-site/packages/frontend-base` — an `rm -rf` through an active mount deletes the **source**. Always `make mfe.site.unlink` first; recover the fork with `git clone` (or from a bundle). |
+| Mounted legacy MFE crash-loops: `sh: 1: fedx-scripts: not found` | the mount overlays the image's `/openedx/app` — install its deps once: `tutor dev run --no-deps ‹app› npm install`, then `tutor dev restart ‹app›`. |

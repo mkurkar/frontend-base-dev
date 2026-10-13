@@ -34,6 +34,10 @@ frontend-base checkout and see it live.
 Both can run **at the same time** — the site link exposes only the fork's *source* into the site,
 so neither loop touches the other's dependencies.
 
+Legacy MFEs (learning, discussions, authoring, …) are **not** part of either loop — Tutor serves
+them from the MFE image at their own ports. To edit one live, see
+**[docs/MFE-DEV.md § C](docs/MFE-DEV.md#c-editing-a-legacy-mfe-optional)**.
+
 ---
 
 ## 2. Where the files go
@@ -179,6 +183,10 @@ vim ~/workspace/lab-frontend-base/shell/header/Header.tsx
 Log in for authenticated states at `http://<box>.openedx.devbox:8000/login` (the dev servers are
 same-site with that host, so the JWT cookie is picked up) and then open the dev server URL.
 
+> On the lab project the developer-facing one-pager lives in the site repo:
+> **`zeit-labs/lab-frontend-site` → `DEV-QUICKSTART.md`** (loops, what to edit, every page,
+> the legacy-MFE loop, gotchas).
+
 ---
 
 ## 9. Troubleshooting (hard-won)
@@ -193,6 +201,9 @@ same-site with that host, so the JWT cookie is picked up) and then open the dev 
 | Turbo task ignores `PORT` / `SITE_CONFIG_PATH` | `make mfe.site.config` must have run (it patches `turbo.json`'s `globalPassThroughEnv`). |
 | `tsc: No such file or directory` when starting loop A | The fork has no `node_modules` — `make mfe.deps FORCE=1`. |
 | `make mfe.link` seems to do nothing | Check no `$`-escaping regressions: inside recipes, shell variables need `$$` (`$$entry`), or make expands them itself. |
+| The fork's files disappeared after deleting/moving the site checkout | Loop B bind-mounts the fork's entries into `frontend-site/packages/frontend-base` — an `rm -rf` through an active mount deletes the **source**. Always `make mfe.site.unlink` first; recover the fork with `git clone` (or from a bundle). |
+| Mounted legacy MFE crash-loops: `sh: 1: fedx-scripts: not found` | The mount overlays the image's `/openedx/app` — install once: `tutor dev run --no-deps <app> npm install`, then `tutor dev restart <app>`. |
+| Cloning a private repo on the box: `could not read Username` | The box has no git credentials. Use `box.sync` (provision token) or transfer a `git bundle` from your laptop. |
 
 ---
 
