@@ -1,5 +1,11 @@
 # frontend-base dev mode — lab setup
 
+> **Canonical location: `zeit-labs/lab-configurations`** (makefiles + `docs/MFE-DEV.md` +
+> `docs/FRESH-BOX.md` + the CORS stopgap plugin), together with `zeit-labs/lab-frontend-site`
+> (`DEV-QUICKSTART.md`), `zeit-labs/lab-tutor-plugin` (the CORS patch) and `zeit-labs/devbox`
+> (`docs/LAB-quickstart.md`). This repository is a **personal mirror**, kept for other projects
+> and reference — lab work should use the team repos.
+
 Everything needed to run **Open edX `frontend-base`** (the new OEP-65 frontend) in development
 mode on a ZeitLabs devbox: two Makefile includes, one small Tutor plugin, and a walkthrough of
 what each piece does.
